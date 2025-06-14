@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import Spinner from './components/Spinner';
 import PostCard from './components/Postcard';
-
+import logo from './assets/vite.svg'
 
 function App() {
   const [posts, setPosts] = useState(
@@ -51,7 +51,7 @@ function App() {
   return (
     <>
       <header className='flex w-full bg-blue-300 sticky top-0 p-2'>
-        <img className='h-12 mr-2' src="/vite.svg" alt="posts logo " />
+        <img className='h-12 mr-2' src={logo} alt="posts logo " />
         <h1 className='text-4xl font-semibold'>Posts</h1>
       </header>
       <main className=" min-h-[90vh] flex flex-col items-center bg-blue-200">
