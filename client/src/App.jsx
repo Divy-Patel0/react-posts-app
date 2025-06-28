@@ -31,32 +31,65 @@ function App() {
     setLoading(false);
   };
 
+  // fetching all post
   useEffect(() => {
     fetchPosts();
   }, [skip])
 
+  // debounced Search
   useEffect(() => {
-    // setSearchLoading(true)
+    if (searchTerm.trim() === '') {
+    setdebouncedSearchTerm('');
+    setSearchLoading(false);
+    return;
+  }
+   
+  setSearchLoading(true)
     const timer = setTimeout(() => {
       setdebouncedSearchTerm(searchTerm)
-    }, 5000);
-    
+    }, 500);
+
     return () => clearTimeout(timer)
   }, [searchTerm])
-  
+
+
+  // fetching searched Post 
   useEffect(() => {
     if (debouncedSearchTerm.trim() === '') {
-      setFilteredPosts(posts); 
-      // setSearchLoading(false)
+      setFilteredPosts(posts);
+      setSearchLoading(false)
     } else {
-      const filtered = posts.filter(post =>
-        post.tags.some(tag =>
-          tag.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
-        )
-      );
-      setFilteredPosts(filtered);
-    }
-    // setSearchLoading(false)
+      const performSearch = async () => {
+      setSearchLoading(true);
+
+      try {
+        const [keywordRes, tagRes] = await Promise.all([
+          fetch(`https://dummyjson.com/posts/search?q=${debouncedSearchTerm}`),
+          fetch(`https://dummyjson.com/posts/tag/${debouncedSearchTerm}`)
+        ]);
+
+        const keywordData = await keywordRes.json();
+        const tagData = await tagRes.json();
+
+        const combinedPosts = [
+          ...keywordData.posts,
+          ...tagData.posts.filter(
+            tagPost => !keywordData.posts.some(p => p.id === tagPost.id)
+          ),
+        ];
+
+        setFilteredPosts(combinedPosts);
+      } catch (err) {
+        console.error('Search error:', err);
+        setFilteredPosts([]);
+      } finally {
+        setSearchLoading(false);
+      }
+    };
+
+    performSearch();
+  }
+
   }, [debouncedSearchTerm, posts])
 
   const handleScroll = () => {
@@ -83,7 +116,7 @@ function App() {
         {!searchLoading && (searchTerm ? filteredPosts : posts).length === 0 && !loading && (
           <p className="text-center text-lg text-gray-600 my-4">No posts found.</p>
         )}
-        {/* {searchTerm && searchLoading && <Spinner/>} */}
+        {searchTerm && searchLoading && <Spinner/>}
         {loading && <Spinner />}
       </main>
     </>

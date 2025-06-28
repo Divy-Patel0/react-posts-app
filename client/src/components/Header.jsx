@@ -16,7 +16,7 @@ const Header = ({ searchTerm, setSearchTerm }) => {
                     <input
                         type="text"
                         id="search"
-                        placeholder="Search by tag..."
+                        placeholder="Search by post and tag..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="p-1 rounded border border-gray-800 w-full sm:w-[250px]"
