@@ -48,17 +48,17 @@ const Reactions = ({ reactions, views }) => {
                     <ThumbsUp size={18} fill={liked ? 'currentColor' : 'none'} />
                 </button>
                 <span>
-                    {reactions.likes}
+                    {likes}
                 </span>
                 <button className={`hover:cursor-pointer hover:scale-110 transition ${disliked ? 'text-red-500' : ''}`}
                     onClick={handleDislike}>
                     <ThumbsDown size={18} fill={disliked ? 'currentColor' : 'none'} />
                 </button>
                 <span>
-                    {reactions.dislikes}
+                    {dislikes}
                 </span>
                 <Eye size={18} />
-                <span>{views}</span>
+                <span>{viewcount}</span>
             </div></>
     )
 }

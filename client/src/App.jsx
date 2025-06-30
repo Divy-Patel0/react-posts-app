@@ -110,7 +110,7 @@ function App() {
 
   return (
     <>
-      <Header searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <Header searchTerm={searchTerm} setSearchTerm={setSearchTerm} setFilteredPosts={setFilteredPosts} />
       <main className=" min-h-[90vh] flex flex-col items-center bg-blue-200">
         <PostCard posts={filteredPosts} />
         {!searchLoading && (searchTerm ? filteredPosts : posts).length === 0 && !loading && (
