@@ -3,7 +3,7 @@ import logo from '../assets/vite.svg'
 import { Plus } from 'lucide-react';
 import AddPostDialog from './AddPostDialog';
 
-const Header = ({ searchTerm, setSearchTerm, setFilteredPosts }) => {
+const Header = ({ searchTerm, setSearchTerm, setFilteredPosts, setSortBy, sortBy }) => {
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -14,8 +14,7 @@ const Header = ({ searchTerm, setSearchTerm, setFilteredPosts }) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newPost)
         })
-        const data = await res.json()
-        // console.log("data : ",data);
+        const data = await res.json();
         setFilteredPosts((prev) => [newPost, ...prev])
     }
     return (
@@ -48,16 +47,32 @@ const Header = ({ searchTerm, setSearchTerm, setFilteredPosts }) => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="p-1 rounded border border-gray-800 w-full sm:w-[250px]"
                     />
+
+                    <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        className="p-1 border rounded text-sm sm:text-base"
+                    >
+                        <option value="">Sort by</option>
+                        <option value="title">Title</option>
+                        <option value="body">Body</option>
+                        <option value="userId">User ID</option>
+                        <option value="views">Views</option>
+                    </select>
                     <button
                         className='hidden  sm:inline-flex items-center justify-center border rounded w-[50px] h-[33px] hover:scale-105 hover:cursor-pointer'
                         onClick={() => setIsDialogOpen(true)}
                     >
                         <Plus strokeWidth={1.2} />
                     </button>
+
                     <AddPostDialog
                         isOpen={isDialogOpen}
                         onClose={() => setIsDialogOpen(false)}
-                        onAddPost={handleAddPost} />
+                        onAddPost={handleAddPost}
+                    />
+
+
                 </div>
             </header>
 

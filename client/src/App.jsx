@@ -21,10 +21,19 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('')
   const [debouncedSearchTerm, setdebouncedSearchTerm] = useState("")
   const [searchLoading, setSearchLoading] = useState(false)
+  const [sortBy, setSortBy] = useState("")
+
 
   const fetchPosts = async () => {
     setLoading(true);
-    const res = await fetch(`https://dummyjson.com/posts?limit=${limit}&skip=${skip}`);
+
+    let url = `https://dummyjson.com/posts?limit=${limit}&skip=${skip}`
+    if (sortBy) {
+      url += `&sortBy=${sortBy}&order=asc`
+      console.log("in sortBy")
+    }
+
+    const res = await fetch(url);
     const data = await res.json();
     setPosts(prev => [...prev, ...data.posts]);
     setTotal(data.total);
@@ -34,17 +43,24 @@ function App() {
   // fetching all post
   useEffect(() => {
     fetchPosts();
-  }, [skip])
+  }, [skip,sortBy])
+
+  // sorting post
+  useEffect(() => {
+    setPosts([]);
+    setSkip(0);
+    console.log("in effect")
+  }, [sortBy])
 
   // debounced Search
   useEffect(() => {
     if (searchTerm.trim() === '') {
-    setdebouncedSearchTerm('');
-    setSearchLoading(false);
-    return;
-  }
-   
-  setSearchLoading(true)
+      setdebouncedSearchTerm('');
+      setSearchLoading(false);
+      return;
+    }
+
+    setSearchLoading(true)
     const timer = setTimeout(() => {
       setdebouncedSearchTerm(searchTerm)
     }, 500);
@@ -52,6 +68,7 @@ function App() {
     return () => clearTimeout(timer)
   }, [searchTerm])
 
+  
 
   // fetching searched Post 
   useEffect(() => {
@@ -60,35 +77,35 @@ function App() {
       setSearchLoading(false)
     } else {
       const performSearch = async () => {
-      setSearchLoading(true);
+        setSearchLoading(true);
 
-      try {
-        const [keywordRes, tagRes] = await Promise.all([
-          fetch(`https://dummyjson.com/posts/search?q=${debouncedSearchTerm}`),
-          fetch(`https://dummyjson.com/posts/tag/${debouncedSearchTerm}`)
-        ]);
+        try {
+          const [keywordRes, tagRes] = await Promise.all([
+            fetch(`https://dummyjson.com/posts/search?q=${debouncedSearchTerm}`),
+            fetch(`https://dummyjson.com/posts/tag/${debouncedSearchTerm}`)
+          ]);
 
-        const keywordData = await keywordRes.json();
-        const tagData = await tagRes.json();
+          const keywordData = await keywordRes.json();
+          const tagData = await tagRes.json();
 
-        const combinedPosts = [
-          ...keywordData.posts,
-          ...tagData.posts.filter(
-            tagPost => !keywordData.posts.some(p => p.id === tagPost.id)
-          ),
-        ];
+          const combinedPosts = [
+            ...keywordData.posts,
+            ...tagData.posts.filter(
+              tagPost => !keywordData.posts.some(p => p.id === tagPost.id)
+            ),
+          ];
 
-        setFilteredPosts(combinedPosts);
-      } catch (err) {
-        console.error('Search error:', err);
-        setFilteredPosts([]);
-      } finally {
-        setSearchLoading(false);
-      }
-    };
+          setFilteredPosts(combinedPosts);
+        } catch (err) {
+          console.error('Search error:', err);
+          setFilteredPosts([]);
+        } finally {
+          setSearchLoading(false);
+        }
+      };
 
-    performSearch();
-  }
+      performSearch();
+    }
 
   }, [debouncedSearchTerm, posts])
 
@@ -110,13 +127,19 @@ function App() {
 
   return (
     <>
-      <Header searchTerm={searchTerm} setSearchTerm={setSearchTerm} setFilteredPosts={setFilteredPosts} />
+      <Header
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        setFilteredPosts={setFilteredPosts}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+      />
       <main className=" min-h-[90vh] flex flex-col items-center bg-blue-200">
         <PostCard posts={filteredPosts} />
         {!searchLoading && (searchTerm ? filteredPosts : posts).length === 0 && !loading && (
           <p className="text-center text-lg text-gray-600 my-4">No posts found.</p>
         )}
-        {searchTerm && searchLoading && <Spinner/>}
+        {searchTerm && searchLoading && <Spinner />}
         {loading && <Spinner />}
       </main>
     </>
